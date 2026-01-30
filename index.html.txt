@@ -5,23 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WiserExchangeLtd</title>
 <style>
-body { font-family: Arial, sans-serif; background: #f2f2f2; margin:0; }
+body { font-family: Arial, sans-serif; background:#f2f2f2; margin:0; }
 header { display:flex; align-items:center; justify-content:center; gap:10px; background:#1a73e8; padding:20px; color:white; flex-direction: column; }
-header img { height:60px; }
+header img { height:80px; }
 nav a { margin: 0 15px; color: white; text-decoration:none; }
-section { padding: 20px; }
+section { padding:20px; }
 .card { background:white; padding:15px; margin:10px 0; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.1);}
 h2 { color: #1a73e8; }
-h3 { margin-top: 15px; }
+h3 { margin-top:15px; }
 button { background:#1a73e8; color:white; border:none; padding:10px 15px; border-radius:5px; cursor:pointer; margin-top:5px; }
 input, select { padding:8px; margin:5px 0; width:100%; box-sizing:border-box; }
-.contact-info a { color: #1a73e8; text-decoration:none; font-weight:bold; }
+.contact-info a { color:#1a73e8; text-decoration:none; font-weight:bold; }
 </style>
 </head>
 <body>
 
 <header>
-  <!-- Replace logo.png with your logo file later -->
   <img src="logo.png" alt="WiserExchangeLtd Logo">
   <h1>WiserExchangeLtd</h1>
   <nav>
@@ -31,30 +30,24 @@ input, select { padding:8px; margin:5px 0; width:100%; box-sizing:border-box; }
   </nav>
 </header>
 
-<!-- Crypto Section -->
 <section id="crypto">
-  <h2>Crypto Rates (NGN)</h2>
-  <div class="card">
-    <p>Bitcoin (BTC): <span id="btc-price">Loading...</span></p>
-    <p>Ethereum (ETH): <span id="eth-price">Loading...</span></p>
-    
-    <h3>Place Crypto Order</h3>
-    <label>Currency</label>
-    <select id="crypto-type">
-      <option value="BTC">Bitcoin (BTC)</option>
-      <option value="ETH">Ethereum (ETH)</option>
-    </select>
-    <label>Amount</label>
-    <input type="number" id="crypto-amount" placeholder="Enter amount in crypto">
-    <button onclick="placeCryptoOrder()">Place Order via WhatsApp</button>
+  <h2>Crypto Rates (USD | NGN)</h2>
+  <div class="card" id="crypto-rates">
+    Loading prices...
   </div>
+
+  <h3>Place Crypto Order</h3>
+  <label>Currency</label>
+  <select id="crypto-type"></select>
+  <label>Amount</label>
+  <input type="number" id="crypto-amount" placeholder="Enter amount in crypto">
+  <button onclick="placeCryptoOrder()">Place Order via WhatsApp</button>
 </section>
 
-<!-- Gift Cards Section -->
 <section id="giftcards">
-  <h2>Gift Card Rates</h2>
+  <h2>Gift Card Rates (NGN)</h2>
   <div class="card" id="giftcard-rates">Loading...</div>
-  
+
   <h3>Place Gift Card Order</h3>
   <label>Gift Card</label>
   <select id="giftcard-type"></select>
@@ -63,42 +56,80 @@ input, select { padding:8px; margin:5px 0; width:100%; box-sizing:border-box; }
   <button onclick="placeGiftCardOrder()">Place Order via WhatsApp</button>
 </section>
 
-<!-- Contact Section -->
 <section id="contact">
   <h2>Contact Us</h2>
   <div class="contact-info">
-    <p>Email: <a href="mailto:yourcompany@gmail.com">yourcompany@gmail.com</a></p>
-    <p>WhatsApp: <a href="https://wa.me/2348012345678" target="_blank">+234 801 234 5678</a></p>
+    <p>Email: <a href="mailto:wiserexchangeltd@gmail.com">wiserexchangeltd@gmail.com</a></p>
+    <p>WhatsApp: <a href="https://wa.me/2349154652718" target="_blank">+234 915 465 2718</a></p>
   </div>
 </section>
 
 <script>
-// --- Crypto sell multipliers (hidden profit) ---
-const cryptoMultiplier = { bitcoin: 1.25, ethereum: 1.30 };
-let cryptoPrices = { BTC:0, ETH:0 };
+// --- Crypto multipliers (hidden profit)
+const cryptoMultiplier = {
+  bitcoin: 1.25,
+  ethereum: 1.30,
+  tether: 1.00,
+  binancecoin: 1.20,
+  usd-coin: 1.00,
+  ripple: 1.15,
+  cardano: 1.25,
+  solana: 1.25,
+  dogecoin: 1.10,
+  polygon: 1.15,
+  litecoin: 1.20
+};
 
-// Fetch live crypto prices and apply sell multiplier
-fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=ngn')
-.then(res => res.json())
-.then(data => {
-  cryptoPrices.BTC = Math.round(data.bitcoin.ngn * cryptoMultiplier.bitcoin);
-  cryptoPrices.ETH = Math.round(data.ethereum.ngn * cryptoMultiplier.ethereum);
-  document.getElementById('btc-price').textContent = cryptoPrices.BTC.toLocaleString() + ' NGN';
-  document.getElementById('eth-price').textContent = cryptoPrices.ETH.toLocaleString() + ' NGN';
-})
-.catch(err => console.log(err));
-
-// --- Gift Cards (sell price only) ---
-let giftCards = [
-  {name: 'Amazon', sell: 520},
-  {name: 'Steam', sell: 460},
-  {name: 'iTunes', sell: 480},
+// Crypto IDs & display names
+const cryptoList = [
+  {id:'bitcoin', symbol:'BTC', name:'Bitcoin'},
+  {id:'ethereum', symbol:'ETH', name:'Ethereum'},
+  {id:'tether', symbol:'USDT', name:'Tether'},
+  {id:'binancecoin', symbol:'BNB', name:'Binance Coin'},
+  {id:'usd-coin', symbol:'USDC', name:'USD Coin'},
+  {id:'ripple', symbol:'XRP', name:'Ripple'},
+  {id:'cardano', symbol:'ADA', name:'Cardano'},
+  {id:'solana', symbol:'SOL', name:'Solana'},
+  {id:'dogecoin', symbol:'DOGE', name:'Dogecoin'},
+  {id:'polygon', symbol:'MATIC', name:'Polygon'},
+  {id:'litecoin', symbol:'LTC', name:'Litecoin'}
 ];
 
-// Display gift cards and populate select options
+let cryptoPrices = {};
+
+// --- Populate select options
+const cryptoSelect = document.getElementById('crypto-type');
+cryptoList.forEach(c=>{
+  cryptoSelect.innerHTML += `<option value="${c.symbol}">${c.name} (${c.symbol})</option>`;
+});
+
+// --- Fetch crypto prices from CoinGecko
+const ids = cryptoList.map(c=>c.id).join(',');
+fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd,ngn`)
+.then(res=>res.json())
+.then(data=>{
+  let html = '';
+  cryptoList.forEach(c=>{
+    const usdPrice = data[c.id].usd;
+    const ngnPrice = Math.round(data[c.id].ngn * cryptoMultiplier[c.id]);
+    cryptoPrices[c.symbol] = ngnPrice;
+    html += `<p>${c.name} (${c.symbol}): $${usdPrice.toLocaleString()} | ${ngnPrice.toLocaleString()} NGN</p>`;
+  });
+  document.getElementById('crypto-rates').innerHTML = html;
+})
+.catch(err=>console.log(err));
+
+// --- Gift Cards
+let giftCards = [
+  {name:'Amazon', sell:520},
+  {name:'Steam', sell:460},
+  {name:'iTunes', sell:480},
+  {name:'Google Play', sell:500}
+];
+
 function updateGiftCardRates() {
   let html='', options='';
-  giftCards.forEach(card => {
+  giftCards.forEach(card=>{
     html += `<p>${card.name}: ${card.sell} NGN/$</p>`;
     options += `<option value="${card.name}">${card.name}</option>`;
   });
@@ -107,26 +138,25 @@ function updateGiftCardRates() {
 }
 updateGiftCardRates();
 
-// --- Place Crypto Order via WhatsApp ---
+// --- Place orders
 function placeCryptoOrder() {
-  const type = document.getElementById('crypto-type').value;
+  const type = cryptoSelect.value;
   const amount = parseFloat(document.getElementById('crypto-amount').value);
   if(!amount || amount<=0){ alert('Enter valid amount'); return; }
-  const rate = cryptoPrices[type]; // sell rate only
+  const rate = cryptoPrices[type];
   const total = rate * amount;
   const message = `Hello WiserExchangeLtd, I want to buy/sell ${amount} ${type} for ${total.toLocaleString()} NGN.`;
-  window.open(`https://wa.me/2348012345678?text=${encodeURIComponent(message)}`, '_blank');
+  window.open(`https://wa.me/2349154652718?text=${encodeURIComponent(message)}`, '_blank');
 }
 
-// --- Place Gift Card Order via WhatsApp ---
 function placeGiftCardOrder() {
   const type = document.getElementById('giftcard-type').value;
   const amount = parseFloat(document.getElementById('giftcard-amount').value);
   if(!amount || amount<=0){ alert('Enter valid amount'); return; }
   const card = giftCards.find(c=>c.name===type);
-  const total = card.sell * amount; // sell price only
+  const total = card.sell * amount;
   const message = `Hello WiserExchangeLtd, I want to buy/sell ${amount} ${type} gift card for ${total.toLocaleString()} NGN.`;
-  window.open(`https://wa.me/2348012345678?text=${encodeURIComponent(message)}`, '_blank');
+  window.open(`https://wa.me/2349154652718?text=${encodeURIComponent(message)}`, '_blank');
 }
 </script>
 
