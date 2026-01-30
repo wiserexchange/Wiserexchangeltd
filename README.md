@@ -1,2 +1,134 @@
-# Wiserexchangeltd
-WiserExchangeLtd – Buy &amp; Sell Cryptocurrency and Gift Cards Instantly via WhatsApp
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WiserExchangeLtd</title>
+<style>
+body { font-family: Arial, sans-serif; background: #f2f2f2; margin:0; }
+header { display:flex; align-items:center; justify-content:center; gap:10px; background:#1a73e8; padding:20px; color:white; flex-direction: column; }
+header img { height:60px; }
+nav a { margin: 0 15px; color: white; text-decoration:none; }
+section { padding: 20px; }
+.card { background:white; padding:15px; margin:10px 0; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.1);}
+h2 { color: #1a73e8; }
+h3 { margin-top: 15px; }
+button { background:#1a73e8; color:white; border:none; padding:10px 15px; border-radius:5px; cursor:pointer; margin-top:5px; }
+input, select { padding:8px; margin:5px 0; width:100%; box-sizing:border-box; }
+.contact-info a { color: #1a73e8; text-decoration:none; font-weight:bold; }
+</style>
+</head>
+<body>
+
+<header>
+  <!-- Replace logo.png with your logo file later -->
+  <img src="logo.png" alt="WiserExchangeLtd Logo">
+  <h1>WiserExchangeLtd</h1>
+  <nav>
+    <a href="#crypto">Crypto</a>
+    <a href="#giftcards">Gift Cards</a>
+    <a href="#contact">Contact</a>
+  </nav>
+</header>
+
+<!-- Crypto Section -->
+<section id="crypto">
+  <h2>Crypto Rates (NGN)</h2>
+  <div class="card">
+    <p>Bitcoin (BTC): <span id="btc-price">Loading...</span></p>
+    <p>Ethereum (ETH): <span id="eth-price">Loading...</span></p>
+    
+    <h3>Place Crypto Order</h3>
+    <label>Currency</label>
+    <select id="crypto-type">
+      <option value="BTC">Bitcoin (BTC)</option>
+      <option value="ETH">Ethereum (ETH)</option>
+    </select>
+    <label>Amount</label>
+    <input type="number" id="crypto-amount" placeholder="Enter amount in crypto">
+    <button onclick="placeCryptoOrder()">Place Order via WhatsApp</button>
+  </div>
+</section>
+
+<!-- Gift Cards Section -->
+<section id="giftcards">
+  <h2>Gift Card Rates</h2>
+  <div class="card" id="giftcard-rates">Loading...</div>
+  
+  <h3>Place Gift Card Order</h3>
+  <label>Gift Card</label>
+  <select id="giftcard-type"></select>
+  <label>Amount ($)</label>
+  <input type="number" id="giftcard-amount" placeholder="Enter amount in USD">
+  <button onclick="placeGiftCardOrder()">Place Order via WhatsApp</button>
+</section>
+
+<!-- Contact Section -->
+<section id="contact">
+  <h2>Contact Us</h2>
+  <div class="contact-info">
+    <p>Email: <a href="mailto:yourcompany@gmail.com">yourcompany@gmail.com</a></p>
+    <p>WhatsApp: <a href="https://wa.me/2348012345678" target="_blank">+234 801 234 5678</a></p>
+  </div>
+</section>
+
+<script>
+// --- Crypto sell multipliers (hidden profit) ---
+const cryptoMultiplier = { bitcoin: 1.25, ethereum: 1.30 };
+let cryptoPrices = { BTC:0, ETH:0 };
+
+// Fetch live crypto prices and apply sell multiplier
+fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=ngn')
+.then(res => res.json())
+.then(data => {
+  cryptoPrices.BTC = Math.round(data.bitcoin.ngn * cryptoMultiplier.bitcoin);
+  cryptoPrices.ETH = Math.round(data.ethereum.ngn * cryptoMultiplier.ethereum);
+  document.getElementById('btc-price').textContent = cryptoPrices.BTC.toLocaleString() + ' NGN';
+  document.getElementById('eth-price').textContent = cryptoPrices.ETH.toLocaleString() + ' NGN';
+})
+.catch(err => console.log(err));
+
+// --- Gift Cards (sell price only) ---
+let giftCards = [
+  {name: 'Amazon', sell: 520},
+  {name: 'Steam', sell: 460},
+  {name: 'iTunes', sell: 480},
+];
+
+// Display gift cards and populate select options
+function updateGiftCardRates() {
+  let html='', options='';
+  giftCards.forEach(card => {
+    html += `<p>${card.name}: ${card.sell} NGN/$</p>`;
+    options += `<option value="${card.name}">${card.name}</option>`;
+  });
+  document.getElementById('giftcard-rates').innerHTML = html;
+  document.getElementById('giftcard-type').innerHTML = options;
+}
+updateGiftCardRates();
+
+// --- Place Crypto Order via WhatsApp ---
+function placeCryptoOrder() {
+  const type = document.getElementById('crypto-type').value;
+  const amount = parseFloat(document.getElementById('crypto-amount').value);
+  if(!amount || amount<=0){ alert('Enter valid amount'); return; }
+  const rate = cryptoPrices[type]; // sell rate only
+  const total = rate * amount;
+  const message = `Hello WiserExchangeLtd, I want to buy/sell ${amount} ${type} for ${total.toLocaleString()} NGN.`;
+  window.open(`https://wa.me/2348012345678?text=${encodeURIComponent(message)}`, '_blank');
+}
+
+// --- Place Gift Card Order via WhatsApp ---
+function placeGiftCardOrder() {
+  const type = document.getElementById('giftcard-type').value;
+  const amount = parseFloat(document.getElementById('giftcard-amount').value);
+  if(!amount || amount<=0){ alert('Enter valid amount'); return; }
+  const card = giftCards.find(c=>c.name===type);
+  const total = card.sell * amount; // sell price only
+  const message = `Hello WiserExchangeLtd, I want to buy/sell ${amount} ${type} gift card for ${total.toLocaleString()} NGN.`;
+  window.open(`https://wa.me/2348012345678?text=${encodeURIComponent(message)}`, '_blank');
+}
+</script>
+
+</body>
+</html>
