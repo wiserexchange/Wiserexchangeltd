@@ -132,8 +132,8 @@ function updateGiftCardRates() {
   giftCards.forEach(card=>{
     html += `<p>${card.name}: ${card.sell} NGN/$</p>`;
     options += `<option value="${card.name}">${card.name}</option>`;
-  });
-  document.getElementById('giftcard-rates').innerHTML = html;
+  });document.getElementById('crypto-rates').innerHTML =
+'Fetching live prices…<br>If it takes long, please refresh.';
   document.getElementById('giftcard-type').innerHTML = options;
 }
 updateGiftCardRates();
